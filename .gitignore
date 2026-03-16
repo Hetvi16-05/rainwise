@@ -1,0 +1,23 @@
+# data
+data/
+data/*
+
+# big files
+*.tif
+*.tiff
+*.csv
+*.nc
+*.gz
+*.zip
+*.h5
+
+# cache
+__pycache__/
+*.pyc
+
+# env
+.env
+.venv
+
+# mac
+.DS_Store
