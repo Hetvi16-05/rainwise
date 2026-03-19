@@ -79,9 +79,7 @@ def main():
 
         df = new_df
 
-
-    df["timestamp"] = pd.to_datetime(df["timestamp"])
-
+    df["timestamp"] = pd.to_datetime(df["timestamp"], errors="coerce", format="mixed")
     cutoff = datetime.now() - timedelta(days=7)
 
     df = df[df["timestamp"] >= cutoff]

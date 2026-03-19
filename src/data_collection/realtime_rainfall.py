@@ -77,11 +77,7 @@ def main():
         df = new_df
 
 
-    df["date"] = pd.to_datetime(df["date"])
-
-    cutoff = datetime.now() - timedelta(days=7)
-
-    df = df[df["date"] >= cutoff]
+    df["date"] = pd.to_datetime(df["date"], errors="coerce", format="mixed")
 
 
     df.to_csv(OUTPUT_FILE, index=False)
