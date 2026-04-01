@@ -4,11 +4,17 @@ import sys
 import time
 from datetime import datetime
 
+# ----------------------
+# paths
+# ----------------------
 BASE_DIR = os.path.abspath(
     os.path.join(os.path.dirname(__file__), "..")
 )
 
 PYTHON = "/Applications/miniconda3/bin/python"
+
+LOCK_FILE = os.path.join(BASE_DIR, "pipeline.lock")
+LAST_RUN_FILE = os.path.join(BASE_DIR, "pipeline_last_run.txt")
 
 
 # ----------------------
@@ -32,17 +38,25 @@ def run_script(script, name):
     path = os.path.join(BASE_DIR, script)
 
     try:
+        print(f"[{datetime.now()}] 🚀 Running: {name}")
 
-        print(f"[{datetime.now()}] {name}")
-
-        subprocess.run(
+        result = subprocess.run(
             [PYTHON, path],
-            check=True
+            capture_output=True,
+            text=True
         )
 
-    except Exception as e:
+        if result.returncode != 0:
+            print(f"❌ Failed: {name}")
+            print(result.stderr)
+            return False
 
-        print("Error:", name, e)
+        print(f"✅ Completed: {name}")
+        return True
+
+    except Exception as e:
+        print(f"❌ Error in {name}: {e}")
+        return False
 
 
 # ----------------------
@@ -50,27 +64,60 @@ def run_script(script, name):
 # ----------------------
 def run_pipeline():
 
-    run_script(
+    if not run_script(
         "data_collection/realtime_weather.py",
         "Weather"
-    )
+    ):
+        return False
 
-    run_script(
+    if not run_script(
         "data_collection/realtime_rainfall.py",
         "Rainfall"
-    )
+    ):
+        return False
 
-    run_script(
+    if not run_script(
         "data_collection/realtime_river.py",
         "River"
-    )
+    ):
+        return False
 
-    run_script(
+    if not run_script(
         "data_collection/build_dataset.py",
         "Dataset"
-    )
+    ):
+        return False
 
-    print("Done")
+    print("🎉 Pipeline completed successfully")
+    return True
+
+
+# ----------------------
+# lock system (VERY IMPORTANT)
+# ----------------------
+def create_lock():
+
+    if os.path.exists(LOCK_FILE):
+        print("⚠️ Pipeline already running. Exiting.")
+        sys.exit()
+
+    with open(LOCK_FILE, "w") as f:
+        f.write(str(os.getpid()))
+
+
+def remove_lock():
+
+    if os.path.exists(LOCK_FILE):
+        os.remove(LOCK_FILE)
+
+
+# ----------------------
+# track last run
+# ----------------------
+def update_last_run():
+
+    with open(LAST_RUN_FILE, "w") as f:
+        f.write(str(datetime.now()))
 
 
 # ----------------------
@@ -78,19 +125,30 @@ def run_pipeline():
 # ----------------------
 if __name__ == "__main__":
 
-    print("Realtime pipeline started")
+    print("🔥 Realtime pipeline started")
 
-    while True:
+    create_lock()
 
-        interval = get_interval()
+    try:
 
-        print(
-            "Month:",
-            datetime.now().month,
-            "Interval:",
-            interval
-        )
+        while True:
 
-        run_pipeline()
+            interval = get_interval()
 
-        time.sleep(interval)
+            print(
+                f"\n📅 Month: {datetime.now().month} | ⏱ Interval: {interval} sec"
+            )
+
+            success = run_pipeline()
+
+            if success:
+                update_last_run()
+
+            print(f"😴 Sleeping for {interval} seconds...\n")
+            time.sleep(interval)
+
+    except KeyboardInterrupt:
+        print("🛑 Stopped manually")
+
+    finally:
+        remove_lock()

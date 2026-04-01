@@ -4,21 +4,12 @@ import random
 import os
 from geopy.distance import geodesic
 
-
 BASE_DIR = os.path.abspath(
     os.path.join(os.path.dirname(__file__), "..", "..")
 )
 
-
-CITIES_FILE = os.path.join(
-    BASE_DIR,
-    "data/config/gujarat_cities.csv"
-)
-
-RIVER_DB = os.path.join(
-    BASE_DIR,
-    "river_database.csv"
-)
+CITIES_FILE = os.path.join(BASE_DIR, "data/config/gujarat_cities.csv")
+RIVER_DB = os.path.join(BASE_DIR, "river_database.csv")
 
 OUTPUT_FILE = os.path.join(
     BASE_DIR,
@@ -26,25 +17,26 @@ OUTPUT_FILE = os.path.join(
 )
 
 
-def find_nearest_river(lat, lon):
+def safe_read_csv(file):
+    if os.path.exists(file):
+        return pd.read_csv(file, on_bad_lines="skip")
+    return pd.DataFrame()
 
-    df = pd.read_csv(RIVER_DB)
 
-    min_dist = 999999
-    nearest = None
+def safe_write_csv(df, file):
+    temp_file = file + ".tmp"
+    df.to_csv(temp_file, index=False)
+    os.replace(temp_file, file)
 
-    for _, row in df.iterrows():
 
-        dist = geodesic(
-            (lat, lon),
-            (row["lat"], row["lon"])
-        ).km
+def find_nearest_river(lat, lon, river_df):
 
-        if dist < min_dist:
-            min_dist = dist
-            nearest = row
+    river_df["distance"] = river_df.apply(
+        lambda r: geodesic((lat, lon), (r["lat"], r["lon"])).km,
+        axis=1
+    )
 
-    return nearest
+    return river_df.loc[river_df["distance"].idxmin()]
 
 
 def generate_level(danger):
@@ -52,72 +44,57 @@ def generate_level(danger):
     month = datetime.datetime.now().month
 
     if month in [6, 7, 8, 9, 10]:
-        level = random.uniform(danger - 3, danger + 3)
-    else:
-        level = random.uniform(5, danger - 5)
+        return round(random.uniform(danger - 3, danger + 3), 2)
 
-    return round(level, 2)
+    return round(random.uniform(5, danger - 5), 2)
 
 
 def get_status(level, warning, danger):
 
     if level >= danger:
         return "Above Danger"
-
     elif level >= warning:
         return "Warning"
-
-    else:
-        return "Normal"
+    return "Normal"
 
 
 def main():
 
     cities = pd.read_csv(CITIES_FILE)
+    river_df = safe_read_csv(RIVER_DB)
 
     rows = []
 
     for _, row in cities.iterrows():
 
-        city = row["city"]
-        lat = row["lat"]
-        lon = row["lon"]
+        nearest = find_nearest_river(row["lat"], row["lon"], river_df)
 
-        river_row = find_nearest_river(lat, lon)
-
-        river = river_row["river"]
-        station = river_row["station"]
-        danger = river_row["danger"]
-        warning = river_row["warning"]
-
-        level = generate_level(danger)
-
-        status = get_status(level, warning, danger)
+        level = generate_level(nearest["danger"])
 
         rows.append({
             "timestamp": datetime.datetime.now(),
-            "city": city,
-            "lat": lat,
-            "lon": lon,
-            "river": river,
-            "station": station,
+            "city": row["city"],
+            "lat": row["lat"],
+            "lon": row["lon"],
+            "river": nearest["river"],
+            "station": nearest["station"],
             "level": level,
-            "danger": danger,
-            "warning": warning,
-            "status": status
+            "danger": nearest["danger"],
+            "warning": nearest["warning"],
+            "status": get_status(level, nearest["warning"], nearest["danger"])
         })
 
-    df = pd.DataFrame(rows)
+    new_df = pd.DataFrame(rows)
 
-    os.makedirs(
-        os.path.dirname(OUTPUT_FILE),
-        exist_ok=True
-    )
+    os.makedirs(os.path.dirname(OUTPUT_FILE), exist_ok=True)
 
-    df.to_csv(OUTPUT_FILE, index=False)
+    old_df = safe_read_csv(OUTPUT_FILE)
 
-    print("River updated")
-    print("Rows:", len(df))
+    df = pd.concat([old_df, new_df], ignore_index=True)
+
+    safe_write_csv(df, OUTPUT_FILE)
+
+    print("✅ River updated:", len(new_df))
 
 
 if __name__ == "__main__":
