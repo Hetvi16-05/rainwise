@@ -1,111 +1,90 @@
 import streamlit as st
-import numpy as np
 import joblib
+import numpy as np
 import requests
-import pandas as pd
+import shap
+import matplotlib.pyplot as plt
 
-st.set_page_config(page_title="Flood Prediction", layout="centered")
+st.set_page_config(page_title="Flood AI", layout="centered")
 
-st.title("🌊 Real-Time Flood Prediction System")
-st.markdown("AI-based flood risk detection for Gujarat")
+st.title("🌊 Real-Time Flood Prediction + Explainability")
 
 # ----------------------
 # LOAD MODEL
 # ----------------------
-model = joblib.load("models/flood_model_xgb.pkl")
-threshold = joblib.load("models/threshold.pkl")
+model = joblib.load("models/flood_model.pkl")
 
 # ----------------------
-# LOAD CITY LIST
+# CITY INPUT
 # ----------------------
-cities_df = pd.read_csv("data/config/gujarat_city_names.csv")
-city_list = cities_df["city"].tolist()
+city = st.text_input("Enter City (e.g. Surat)")
 
-st.subheader("📍 Select Location")
-city = st.selectbox("Select City", city_list)
+API_KEY = "YOUR_API_KEY"
 
 # ----------------------
-# API CONFIG
-# ----------------------
-API_KEY = "a20148ccfa37a665bc1993dcfbf42197"
-
-# ----------------------
-# FETCH WEATHER DATA
+# WEATHER API
 # ----------------------
 def get_weather(city):
     url = f"http://api.openweathermap.org/data/2.5/weather?q={city}&appid={API_KEY}&units=metric"
-    response = requests.get(url).json()
+    res = requests.get(url).json()
 
-    rain = response.get("rain", {}).get("1h", 0)
-    clouds = response.get("clouds", {}).get("all", 0)
-    humidity = response.get("main", {}).get("humidity", 0)
+    rain = res.get("rain", {}).get("1h", 0)
+    clouds = res.get("clouds", {}).get("all", 0)
+    humidity = res.get("main", {}).get("humidity", 0)
 
     return rain, clouds, humidity
 
 # ----------------------
-# PREDICTION
+# PREDICT
 # ----------------------
-if st.button("🌦️ Get Live Prediction"):
+if st.button("🌦️ Predict Live Flood Risk"):
 
     rain, clouds, humidity = get_weather(city)
 
-    # ----------------------
-    # BETTER RAIN ESTIMATION
-    # ----------------------
-    rain3 = rain * 3 + (clouds / 100) * 5
-    rain7 = rain * 7 + (humidity / 100) * 10
-
-    # default geo values
-    elevation = 50
-    distance = 500
-
-    # ----------------------
-    # FEATURE ENGINEERING (MATCH TRAINING)
-    # ----------------------
-    rain_trend = rain3 - rain7
-    rain_intensity = rain3 / 3
-
-    log_rain3 = np.log1p(rain3)
-    log_rain7 = np.log1p(rain7)
-
-    river_risk = rain3 / (distance + 1)
-
-    features = np.array([[
-        rain3,
-        rain7,
-        rain_trend,
-        rain_intensity,
-        log_rain3,
-        log_rain7,
-        river_risk,
-        elevation,
-        distance
-    ]])
-
-    # ----------------------
-    # MODEL PREDICTION
-    # ----------------------
-    proba = model.predict_proba(features)[0][1]
-    pred = int(proba > threshold)
-
-    # ----------------------
-    # OUTPUT
-    # ----------------------
-    st.subheader("📊 Result")
-
-    st.write(f"📍 City: {city}")
-    st.write(f"🌧 Rain (1h): {rain} mm")
+    st.write(f"🌧 Rain: {rain} mm")
     st.write(f"☁ Clouds: {clouds}%")
     st.write(f"💧 Humidity: {humidity}%")
 
-    st.write(f"Flood Probability: **{proba:.2f}**")
+    # Feature engineering
+    rain3 = rain * 3
+    rain7 = rain * 7
 
-    if pred == 1:
-        if proba > 0.85:
-            st.error("🚨 HIGH FLOOD RISK")
-        elif proba > 0.6:
-            st.warning("⚠️ MODERATE FLOOD RISK")
-        else:
-            st.info("⚠️ LOW FLOOD RISK")
+    rain_intensity = rain7 / 7
+    rain_ratio = rain3 / (rain7 + 1)
+    river_risk = 1 / (500 + 1)
+
+    features = np.array([[
+        rain3, rain7, rain_intensity, rain_ratio,
+        0, 0, river_risk,
+        50, 500,
+        22, 72,
+        rain*0.8, rain*1.2, rain*0.3
+    ]])
+
+    proba = model.predict_proba(features)[0][1]
+
+    st.write(f"🌊 Flood Probability: {proba:.2f}")
+
+    if proba > 0.7:
+        st.error("🚨 HIGH RISK")
+    elif proba > 0.4:
+        st.warning("⚠️ MODERATE RISK")
     else:
         st.success("✅ SAFE")
+
+    # =========================
+    # 🔥 SHAP EXPLAINABILITY
+    # =========================
+    st.subheader("🧠 Why this prediction?")
+
+    explainer = shap.TreeExplainer(model)
+    shap_values = explainer.shap_values(features)
+
+    fig, ax = plt.subplots()
+    shap.plots.waterfall(shap.Explanation(
+        values=shap_values[0],
+        base_values=explainer.expected_value,
+        data=features[0]
+    ), show=False)
+
+    st.pyplot(fig)

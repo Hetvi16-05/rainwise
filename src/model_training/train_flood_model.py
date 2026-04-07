@@ -1,47 +1,54 @@
 import pandas as pd
+import numpy as np
 import joblib
+import logging
+import os
+
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 from sklearn.model_selection import train_test_split
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import roc_auc_score
+from sklearn.metrics import (
+    roc_auc_score, roc_curve,
+    confusion_matrix, classification_report,
+    accuracy_score
+)
+
 from imblearn.over_sampling import SMOTE
+from xgboost import XGBClassifier
+
+# =========================
+# LOGGING
+# =========================
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s"
+)
+logger = logging.getLogger()
+
+os.makedirs("outputs", exist_ok=True)
+os.makedirs("models", exist_ok=True)
 
 # =========================
 # LOAD DATA
 # =========================
+logger.info("📂 Loading dataset...")
 df = pd.read_parquet("data/bigdata/final.parquet")
-
-print("📊 Rows:", len(df))
+logger.info(f"Rows: {len(df)}")
 
 # =========================
-# FEATURE ENGINEERING (STRONGER)
+# FEATURE ENGINEERING
 # =========================
+logger.info("⚙️ Feature engineering...")
+
 df["rain_intensity"] = df["rain7_mm"] / 7
 df["rain_ratio"] = df["rain3_mm"] / (df["rain7_mm"] + 1)
-
-# 🔥 NEW IMPORTANT FEATURES
-df["heavy_rain_flag"] = (df["rain3_mm"] > 150).astype(int)
-df["extreme_rain_flag"] = (df["rain7_mm"] > 300).astype(int)
 df["river_risk"] = 1 / (df["distance_to_river_m"] + 1)
 
-# =========================
-# FEATURES
-# =========================
 features = [
-    "rain3_mm",
-    "rain7_mm",
-    "rain_intensity",
-    "rain_ratio",
-    "heavy_rain_flag",
-    "extreme_rain_flag",
-    "river_risk",
-    "elevation_m",
-    "distance_to_river_m",
-    "lat",
-    "lon",
-    "nasa_avg_rain",
-    "nasa_max_rain",
-    "nasa_std_rain"
+    "rain3_mm", "rain7_mm", "rain_intensity", "rain_ratio",
+    "river_risk", "elevation_m", "distance_to_river_m",
+    "lat", "lon"
 ]
 
 df = df[features + ["flood"]].dropna()
@@ -57,36 +64,86 @@ X_train, X_test, y_train, y_test = train_test_split(
 )
 
 # =========================
-# 🔥 HANDLE IMBALANCE (CRITICAL)
+# SMOTE
 # =========================
+logger.info("⚖️ Applying SMOTE...")
 smote = SMOTE(sampling_strategy=0.3, random_state=42)
 X_train, y_train = smote.fit_resample(X_train, y_train)
 
 # =========================
-# TRAIN MODEL
+# MODEL
 # =========================
-model = RandomForestClassifier(
-    n_estimators=300,
-    max_depth=15,
-    min_samples_leaf=2,
-    class_weight="balanced_subsample",
-    n_jobs=-1,
-    random_state=42
+logger.info("🚀 Training XGBoost classifier...")
+model = XGBClassifier(
+    n_estimators=400,
+    max_depth=6,
+    learning_rate=0.05,
+    scale_pos_weight=3,
+    eval_metric="logloss",
+    n_jobs=-1
 )
 
 model.fit(X_train, y_train)
 
 # =========================
-# EVALUATE
+# PREDICTIONS
 # =========================
-y_pred_proba = model.predict_proba(X_test)[:, 1]
-auc = roc_auc_score(y_test, y_pred_proba)
-
-print("🔥 AUC:", auc)
+y_train_pred = model.predict(X_train)
+y_test_pred = model.predict(X_test)
+y_test_proba = model.predict_proba(X_test)[:, 1]
 
 # =========================
-# SAVE
+# METRICS
 # =========================
-joblib.dump(model, "models/final_flood_model.pkl")
+train_acc = accuracy_score(y_train, y_train_pred)
+test_acc = accuracy_score(y_test, y_test_pred)
+auc = roc_auc_score(y_test, y_test_proba)
 
-print("✅ Model saved")
+logger.info(f"Train Accuracy: {train_acc:.4f}")
+logger.info(f"Test Accuracy: {test_acc:.4f}")
+logger.info(f"ROC-AUC: {auc:.4f}")
+
+logger.info("\n📄 Classification Report:\n" +
+            classification_report(y_test, y_test_pred))
+
+# =========================
+# CONFUSION MATRIX
+# =========================
+cm = confusion_matrix(y_test, y_test_pred)
+
+plt.figure()
+sns.heatmap(cm, annot=True, fmt="d")
+plt.title("Confusion Matrix")
+plt.savefig("outputs/flood_confusion_matrix.png")
+plt.close()
+
+# =========================
+# ROC CURVE
+# =========================
+fpr, tpr, _ = roc_curve(y_test, y_test_proba)
+
+plt.figure()
+plt.plot(fpr, tpr, label=f"AUC={auc:.3f}")
+plt.plot([0,1],[0,1],'--')
+plt.legend()
+plt.title("ROC Curve")
+plt.savefig("outputs/flood_roc_curve.png")
+plt.close()
+
+# =========================
+# FEATURE IMPORTANCE
+# =========================
+importances = model.feature_importances_
+indices = np.argsort(importances)[::-1]
+
+plt.figure()
+sns.barplot(x=importances[indices], y=np.array(features)[indices])
+plt.title("Feature Importance")
+plt.savefig("outputs/flood_feature_importance.png")
+plt.close()
+
+# =========================
+# SAVE MODEL
+# =========================
+joblib.dump(model, "models/flood_model.pkl")
+logger.info("✅ Flood model saved successfully!")   
