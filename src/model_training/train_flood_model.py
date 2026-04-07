@@ -14,8 +14,13 @@ from sklearn.metrics import (
     accuracy_score
 )
 
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import FunctionTransformer
 from imblearn.over_sampling import SMOTE
 from xgboost import XGBClassifier
+
+# 🔥 IMPORTANT IMPORT (NO PICKLE ERROR)
+from src.utils.features import feature_engineering
 
 # =========================
 # LOGGING
@@ -33,28 +38,37 @@ os.makedirs("models", exist_ok=True)
 # LOAD DATA
 # =========================
 logger.info("📂 Loading dataset...")
-df = pd.read_parquet("data/bigdata/final.parquet")
+
+df = pd.read_csv(
+    "data/processed/training_dataset_gujarat_advanced_labeled.csv",
+    low_memory=False
+)
+
+df.columns = df.columns.str.lower()
 logger.info(f"Rows: {len(df)}")
 
 # =========================
-# FEATURE ENGINEERING
+# CREATE RAW FEATURE
 # =========================
-logger.info("⚙️ Feature engineering...")
+df["rain_mm"] = df["rain3_mm"] / 3
 
-df["rain_intensity"] = df["rain7_mm"] / 7
-df["rain_ratio"] = df["rain3_mm"] / (df["rain7_mm"] + 1)
-df["river_risk"] = 1 / (df["distance_to_river_m"] + 1)
-
+# =========================
+# FEATURES (RAW INPUT ONLY)
+# =========================
 features = [
-    "rain3_mm", "rain7_mm", "rain_intensity", "rain_ratio",
-    "river_risk", "elevation_m", "distance_to_river_m",
-    "lat", "lon"
+    "rain_mm",
+    "elevation_m",
+    "distance_to_river_m",
+    "lat",
+    "lon"
 ]
 
-df = df[features + ["flood"]].dropna()
+target = "flood"
 
-X = df[features]
-y = df["flood"]
+df = df[features + [target]].dropna()
+
+X = df[features].values
+y = df[target].values
 
 # =========================
 # SPLIT
@@ -64,37 +78,44 @@ X_train, X_test, y_train, y_test = train_test_split(
 )
 
 # =========================
-# SMOTE
+# HANDLE IMBALANCE
 # =========================
 logger.info("⚖️ Applying SMOTE...")
 smote = SMOTE(sampling_strategy=0.3, random_state=42)
 X_train, y_train = smote.fit_resample(X_train, y_train)
 
 # =========================
-# MODEL
+# PIPELINE MODEL
 # =========================
-logger.info("🚀 Training XGBoost classifier...")
-model = XGBClassifier(
-    n_estimators=400,
-    max_depth=6,
-    learning_rate=0.05,
-    scale_pos_weight=3,
-    eval_metric="logloss",
-    n_jobs=-1
-)
+logger.info("🚀 Building pipeline model...")
 
+model = Pipeline([
+    ("feature_engineering", FunctionTransformer(feature_engineering)),
+    ("classifier", XGBClassifier(
+        n_estimators=400,
+        max_depth=6,
+        learning_rate=0.05,
+        scale_pos_weight=3,
+        eval_metric="logloss",
+        n_jobs=-1
+    ))
+])
+
+# =========================
+# TRAIN
+# =========================
+logger.info("🏋️ Training model...")
 model.fit(X_train, y_train)
 
 # =========================
-# PREDICTIONS
+# EVALUATION
 # =========================
+logger.info("📊 Evaluating model...")
+
 y_train_pred = model.predict(X_train)
 y_test_pred = model.predict(X_test)
 y_test_proba = model.predict_proba(X_test)[:, 1]
 
-# =========================
-# METRICS
-# =========================
 train_acc = accuracy_score(y_train, y_train_pred)
 test_acc = accuracy_score(y_test, y_test_pred)
 auc = roc_auc_score(y_test, y_test_proba)
@@ -112,7 +133,7 @@ logger.info("\n📄 Classification Report:\n" +
 cm = confusion_matrix(y_test, y_test_pred)
 
 plt.figure()
-sns.heatmap(cm, annot=True, fmt="d")
+sns.heatmap(cm, annot=True, fmt="d", cmap="Blues")
 plt.title("Confusion Matrix")
 plt.savefig("outputs/flood_confusion_matrix.png")
 plt.close()
@@ -133,11 +154,20 @@ plt.close()
 # =========================
 # FEATURE IMPORTANCE
 # =========================
-importances = model.feature_importances_
+importances = model.named_steps["classifier"].feature_importances_
+
+feature_names = [
+    "rain3", "rain7", "rain_intensity", "rain_ratio",
+    "river_risk", "elevation", "distance", "lat", "lon"
+]
+
 indices = np.argsort(importances)[::-1]
 
 plt.figure()
-sns.barplot(x=importances[indices], y=np.array(features)[indices])
+sns.barplot(
+    x=importances[indices],
+    y=np.array(feature_names)[indices]
+)
 plt.title("Feature Importance")
 plt.savefig("outputs/flood_feature_importance.png")
 plt.close()
@@ -146,4 +176,5 @@ plt.close()
 # SAVE MODEL
 # =========================
 joblib.dump(model, "models/flood_model.pkl")
-logger.info("✅ Flood model saved successfully!")   
+
+logger.info("✅ Pipeline model saved successfully!")

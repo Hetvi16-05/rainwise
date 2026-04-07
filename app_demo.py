@@ -1,109 +1,118 @@
 import streamlit as st
 import joblib
 import pandas as pd
-import shap
-import matplotlib.pyplot as plt
+import numpy as np
+
+# 🔥 IMPORTANT IMPORT
+from src.utils.features import feature_engineering
 
 st.set_page_config(page_title="Flood Prediction Demo", layout="centered")
 
-st.title("🌊 Flood Prediction System (Explainable AI)")
-st.markdown("Machine Learning + GIS + SHAP Explainability")
+st.title("🌊 Flood Prediction System")
+st.markdown("Predict flood risk from **rainfall amount & geography** using XGBoost Classifier.")
 
 # ----------------------
 # LOAD MODEL
 # ----------------------
-model = joblib.load("models/flood_model.pkl")
+flood_model = joblib.load("models/flood_model.pkl")
 
 # ----------------------
-# LOAD CITY DATA
+# CITY DATA
 # ----------------------
 cities_df = pd.read_csv("data/config/gujarat_cities.csv")
 cities_df.columns = cities_df.columns.str.lower()
 
 city = st.selectbox("📍 Select City", cities_df["city"].unique())
 
-city_row = cities_df[cities_df["city"] == city]
-city_lat = float(city_row["lat"].values[0])
-city_lon = float(city_row["lon"].values[0])
+row = cities_df[cities_df["city"] == city]
+lat = float(row["lat"].values[0])
+lon = float(row["lon"].values[0])
 
 # ----------------------
-# LOAD GIS DATA
+# GIS DATA
 # ----------------------
 river_df = pd.read_csv("data/processed/gujarat_river_distance.csv")
 elev_df = pd.read_csv("data/processed/gujarat_elevation.csv")
 
+river_df.columns = river_df.columns.str.lower()
+elev_df.columns = elev_df.columns.str.lower()
+
 def find_nearest(df, lat, lon):
+    df = df.copy()
     df["dist"] = (df["lat"] - lat)**2 + (df["lon"] - lon)**2
     return df.loc[df["dist"].idxmin()]
 
-distance = float(find_nearest(river_df, city_lat, city_lon)["river_distance"])
-elevation = float(find_nearest(elev_df, city_lat, city_lon)["elevation"])
-
-st.write(f"📏 River Distance: {distance:.2f} m")
-st.write(f"⛰ Elevation: {elevation:.2f} m")
+distance = float(find_nearest(river_df, lat, lon)["river_distance"])
+elevation = float(find_nearest(elev_df, lat, lon)["elevation"])
 
 # ----------------------
-# INPUT
+# LOCATION INFO
 # ----------------------
-rain = st.slider("Rain (1h mm)", 0.0, 100.0, 10.0)
+st.subheader("🌍 Location & Geography")
+col1, col2 = st.columns(2)
+col1.metric("Latitude", f"{lat:.4f}")
+col2.metric("Longitude", f"{lon:.4f}")
+
+col3, col4 = st.columns(2)
+col3.metric("Distance to River", f"{distance:.0f} m")
+col4.metric("Elevation", f"{elevation:.0f} m")
+
+# ----------------------
+# RAINFALL INPUT
+# ----------------------
+st.subheader("🌧 Rainfall Input")
+st.markdown("Enter the observed or predicted rainfall amount.")
+
+rain = st.slider("Rainfall (mm)", 0.0, 100.0, 10.0, step=0.5)
+threshold = st.slider("🎯 Alert Threshold", 0.1, 0.9, 0.5, step=0.05)
 
 # ----------------------
 # PREDICT
 # ----------------------
-if st.button("🔍 Predict"):
+if st.button("🔍 Predict Flood Risk"):
+    features = np.array([[rain, elevation, distance, lat, lon]])
+    proba = flood_model.predict_proba(features)[0][1]
 
-    rain3 = rain * 3
-    rain7 = rain * 7
+    st.divider()
+    st.subheader("📊 Flood Risk Assessment")
 
-    rain_intensity = rain7 / 7
-    rain_ratio = rain3 / (rain7 + 1)
+    col_f1, col_f2 = st.columns(2)
+    col_f1.metric("Flood Probability", f"{proba:.2f}")
 
-    heavy_rain_flag = int(rain3 > 150)
-    extreme_rain_flag = int(rain7 > 300)
-    river_risk = 1 / (distance + 1)
-
-    nasa_avg = rain * 0.8
-    nasa_max = rain * 1.2
-    nasa_std = rain * 0.3
-
-    features = pd.DataFrame([[
-        rain3, rain7, rain_intensity, rain_ratio,
-        heavy_rain_flag, extreme_rain_flag, river_risk,
-        elevation, distance,
-        city_lat, city_lon,
-        nasa_avg, nasa_max, nasa_std
-    ]], columns=[
-        "rain3_mm","rain7_mm","rain_intensity","rain_ratio",
-        "heavy_rain_flag","extreme_rain_flag","river_risk",
-        "elevation_m","distance_to_river_m",
-        "lat","lon",
-        "nasa_avg_rain","nasa_max_rain","nasa_std_rain"
-    ])
-
-    proba = model.predict_proba(features)[0][1]
-
-    st.write(f"🌊 Flood Probability: {proba:.2f}")
-
-    if proba > 0.6:
-        st.error("🚨 HIGH RISK")
-    elif proba > 0.3:
-        st.warning("⚠️ MODERATE RISK")
+    if proba > threshold:
+        if proba > 0.8:
+            col_f2.metric("Risk Level", "🔴 HIGH")
+            st.error("🚨 HIGH FLOOD RISK — Evacuate low-lying areas immediately!")
+        elif proba > 0.6:
+            col_f2.metric("Risk Level", "🟠 SIGNIFICANT")
+            st.error("🔴 SIGNIFICANT FLOOD RISK — Take precautionary measures!")
+        else:
+            col_f2.metric("Risk Level", "🟡 MODERATE")
+            st.warning("⚠️ MODERATE FLOOD RISK — Stay alert and monitor conditions!")
     else:
-        st.success("✅ LOW RISK")
+        col_f2.metric("Risk Level", "🟢 LOW")
+        st.success("✅ LOW FLOOD RISK — Conditions are currently safe.")
 
-    # =========================
-    # 🔥 SHAP EXPLAINABILITY
-    # =========================
-    st.subheader("🧠 Model Explanation (SHAP)")
+    # --- Summary Table ---
+    st.subheader("📋 Input Summary")
+    summary_df = pd.DataFrame({
+        "Parameter": ["City", "Rainfall", "Elevation", "Distance to River",
+                      "Latitude", "Longitude", "Flood Probability"],
+        "Value": [city, f"{rain} mm", f"{elevation:.0f} m", f"{distance:.0f} m",
+                  f"{lat:.4f}", f"{lon:.4f}", f"{proba:.2f}"]
+    })
+    st.table(summary_df)
 
-    explainer = shap.TreeExplainer(model)
-    shap_values = explainer.shap_values(features)
+# ----------------------
+# MODEL EVALUATION
+# ----------------------
+st.divider()
+st.subheader("📊 Flood Model Evaluation")
+st.image("outputs/flood_confusion_matrix.png", caption="Confusion Matrix")
+st.image("outputs/flood_feature_importance.png", caption="Feature Importance")
 
-    fig, ax = plt.subplots()
-    shap.plots.waterfall(shap.Explanation(
-        values=shap_values[0],
-        base_values=explainer.expected_value,
-        data=features.iloc[0]
-    ), show=False)
-
-    st.pyplot(fig)
+# ----------------------
+# MAP
+# ----------------------
+st.subheader("🗺 Map")
+st.map(pd.DataFrame({"lat": [lat], "lon": [lon]}))
