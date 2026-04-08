@@ -82,14 +82,9 @@ X_train, X_test, y_train, y_test = train_test_split(
 )
 
 # =========================
-# HANDLE IMBALANCE
+# NO SMOTE — train on natural distribution for calibrated probabilities
 # =========================
-# 🔧 BALANCED: SMOTE at 0.3 + scale_pos_weight=3 for calibrated probabilities
-logger.info("⚖️ Applying SMOTE...")
-smote = SMOTE(sampling_strategy=0.3, random_state=42)
-X_train, y_train = smote.fit_resample(X_train, y_train)
-
-logger.info(f"After SMOTE — Class 0: {(y_train==0).sum()}, Class 1: {(y_train==1).sum()}")
+logger.info(f"Class distribution — No flood: {(y_train==0).sum()}, Flood: {(y_train==1).sum()}")
 
 # =========================
 # PIPELINE MODEL
