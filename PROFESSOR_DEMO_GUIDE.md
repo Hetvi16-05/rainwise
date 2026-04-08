@@ -2,6 +2,23 @@
 
 This document provides a step-by-step walkthrough of how the RAINWISE project fulfills the **10 Core Big Data Requirements** outlined in the project syllabus.
 
+## 🚀 Phase 0: Cluster Startup (Hadoop Simulation)
+
+Before diving into the data, show your professor how you "start" your distributed environment using standard Big Data commands.
+
+### 1. Initialize HDFS Daemons
+*   **Command:** `./start-dfs.sh`
+*   **What to say:** "Professor, I'm initiating the NameNode and DataNode services. This starts our simulated HDFS cluster and launches the Web UI for monitoring."
+
+### 2. Verify with JPS
+*   **Command:** `./jps.sh`
+*   **What to show:** Point to the output showing `NameNode`, `DataNode`, and `SecondaryNameNode`.
+*   **What to say:** "The JPS (Java Virtual Machine Process Status Tool) confirms that our Hadoop daemons are active and running in the background."
+
+### 3. Launch PySpark
+*   **Command:** `./pyspark.sh`
+*   **What to say:** "Now we are launching our PySpark session, which connects to our HDFS storage to begin the distributed flood prediction pipeline."
+
 ---
 
 ## 🏗️ Phase 1: Planning to Data Possession
@@ -62,6 +79,27 @@ This document provides a step-by-step walkthrough of how the RAINWISE project fu
     *   **Heatmaps:** Feature correlation (identifying trade anomalies).
     *   **Box Plots:** Identifying extreme outliers in water level distances.
 *   **Output Folder:** [plots/](file:///Users/HetviSheth/rainwise/plots/)
+
+---
+
+## 🌐 Phase 4: Visualizing the Cluster (Localhost UIs)
+
+To truly "WOW" the professor, show the live dashboards running on your local machine.
+
+### 1. PySpark Web UI
+*   **While the script is running**, open your browser to: `http://localhost:4040`
+*   **What to show:**
+    *   **Jobs Tab:** Show the different stages of computation.
+    *   **DAG Visualization:** Click on a job to show the **Directed Acyclic Graph**. This proves that Spark is optimizing the execution.
+    *   **Storage Tab:** Show how our `repartition(10)` and `cache()` commands are working in memory.
+
+### 2. HDFS simulated Dashboard
+*   **Run the UI server:** `python3 src/bigdata/hdfs_web_ui.py`
+*   **Open browser to:** `http://localhost:9870`
+*   **What to show:**
+    *   **Cluster Summary:** Shows "Distributed" stats like Capacity and DFS used.
+    *   **Directory Browser:** Browse through `hdfs://raw/` and `hdfs://processed/` in a modern, glassmorphic interface that mimics real Hadoop NameNode UI.
+    *   **Block Replication:** Point out the "Replication Factor: 3"—this reinforces the concept that Big Data is stored redundantly across nodes.
 
 ---
 
