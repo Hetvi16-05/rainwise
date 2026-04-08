@@ -12,6 +12,7 @@ BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 WEATHER_LOG = os.path.join(BASE_DIR, "data/raw/realtime/weather/realtime_weather_log.csv")
 RAINFALL_LOG = os.path.join(BASE_DIR, "data/raw/realtime/rainfall/realtime_rainfall_log.csv")
 RIVER_LOG = os.path.join(BASE_DIR, "data/raw/realtime/river/realtime_river_level_log.csv")
+SATELLITE_LOG = os.path.join(BASE_DIR, "data/raw/realtime/satellite/satellite_rainfall_log.csv")
 REALTIME_DATASET = os.path.join(BASE_DIR, "data/processed/realtime_dataset.csv")
 
 
@@ -147,20 +148,61 @@ def get_latest_river(city=None):
     }
 
 
+def get_latest_satellite(city=None):
+    """Get latest satellite-derived rainfall.
+
+    Returns dict with: rainfall_mm, hourly_max_mm, source, timestamp
+    Returns None if no data.
+    """
+    df = safe_read(SATELLITE_LOG)
+    if df.empty:
+        return None
+
+    if "city" not in df.columns:
+        return None
+
+    df = df.dropna(subset=["city"])
+    df["timestamp"] = pd.to_datetime(df["timestamp"], errors="coerce")
+    df = df.dropna(subset=["timestamp"])
+
+    if city:
+        df = df[df["city"].str.strip() == city.strip()]
+        if df.empty:
+            return None
+
+    latest = df.sort_values("timestamp").iloc[-1]
+
+    rain = latest.get("rainfall_mm", 0)
+    if pd.isna(rain):
+        rain = 0.0
+
+    return {
+        "rainfall_mm": float(rain),
+        "hourly_max_mm": float(latest.get("hourly_max_mm", 0) or 0),
+        "hours_with_rain": int(latest.get("hours_with_rain", 0) or 0),
+        "source": str(latest.get("source", "Satellite")),
+        "timestamp": str(latest["timestamp"]),
+        "city": str(latest.get("city", "Unknown")),
+    }
+
+
 def get_all_realtime(city):
     """Get all real-time data for a city. Returns a combined dict."""
     weather = get_latest_weather(city)
     rainfall = get_latest_rainfall(city)
+    satellite = get_latest_satellite(city)
     river = get_latest_river(city)
 
     return {
         "weather": weather,
         "rainfall": rainfall,
+        "satellite": satellite,
         "river": river,
         "has_weather": weather is not None,
         "has_rainfall": rainfall is not None,
+        "has_satellite": satellite is not None,
         "has_river": river is not None,
-        "pipeline_active": any([weather, rainfall, river])
+        "pipeline_active": any([weather, rainfall, satellite, river])
     }
 
 
@@ -174,6 +216,7 @@ def get_pipeline_status():
         "last_run": None,
         "weather_log_exists": os.path.exists(WEATHER_LOG),
         "rainfall_log_exists": os.path.exists(RAINFALL_LOG),
+        "satellite_log_exists": os.path.exists(SATELLITE_LOG),
         "river_log_exists": os.path.exists(RIVER_LOG),
     }
 

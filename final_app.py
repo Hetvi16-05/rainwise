@@ -89,13 +89,16 @@ with st.expander("🔄 Real-Time Pipeline Architecture", expanded=False):
     st.markdown("""
     ```
     📡 Data Collection Pipeline (run_realtime_pipeline.py)
-    ├── realtime_weather.py   → Weather logs (temp, humidity, wind)
-    ├── realtime_rainfall.py  → Rainfall logs (precipitation)
-    └── realtime_river.py     → River level logs (level, danger, status)
-         ↓
-    build_dataset.py → Merged realtime_dataset.csv
+    ├── realtime_weather.py   → Weather logs
+    ├── gpm_fetcher.py (NEW)  → 🛰️ Satellite rainfall (ERA5)
+    ├── realtime_rainfall.py  → Uses satellite data
+    ├── realtime_river.py     → River level logs
+    └── build_dataset.py      → Merged dataset + GIS features
          ↓
     ┌─────────────────────────────────────────────┐
+    │  🛰️ Satellite Rainfall (ERA5/GPM)           │
+    │  Real satellite-derived precipitation data   │
+    ├─────────────────────────────────────────────┤
     │  🌧️ Stage 1: Rainfall Model (XGBoost)      │
     │  Atmospheric inputs → Predicted rainfall     │
     ├─────────────────────────────────────────────┤
@@ -135,6 +138,7 @@ st.sidebar.subheader("📡 Pipeline Health")
 p_status = get_pipeline_status()
 st.sidebar.markdown(
     f"Weather: {'✅' if p_status['weather_log_exists'] else '❌'} | "
+    f"Satellite: {'✅' if p_status.get('satellite_log_exists') else '❌'} | "
     f"Rainfall: {'✅' if p_status['rainfall_log_exists'] else '❌'} | "
     f"River: {'✅' if p_status['river_log_exists'] else '❌'}"
 )
@@ -206,6 +210,21 @@ if data_source != "Manual":
     c3.metric("📊 Press", f"{pressure} hPa")
     c4.metric("💨 Wind", f"{wind_speed} km/h")
     c5.metric("☁️ Clouds", f"{cloud_cover}%")
+
+# ================================================================
+# SATELLITE RAINFALL DATA
+# ================================================================
+if realtime.get("has_satellite") and realtime["satellite"]:
+    sat = realtime["satellite"]
+    st.divider()
+    st.subheader("🛰️ Satellite Rainfall (ERA5)")
+
+    sat_c1, sat_c2, sat_c3, sat_c4 = st.columns(4)
+    sat_c1.metric("24h Total", f"{sat['rainfall_mm']:.1f} mm")
+    sat_c2.metric("Max Hourly", f"{sat['hourly_max_mm']:.1f} mm")
+    sat_c3.metric("Hours w/ Rain", f"{sat['hours_with_rain']}h")
+    sat_c4.metric("Source", sat["source"])
+    st.caption(f"📡 Satellite data from {sat['timestamp']}")
 
 # ================================================================
 # RIVER LEVEL MONITORING
