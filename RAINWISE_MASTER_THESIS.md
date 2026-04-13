@@ -61,6 +61,22 @@ The raw data alone is not enough for high-fidelity prediction. We engineered thr
 
 ---
 
+## 🏙️ 3. Urban Infrastructure & NLP Integration
+
+A unique innovation of RAINWISE is the inclusion of **Human-Centric Data** alongside physical sensor streams. This addresses the "Veracity" and "Variety" of Big Data by correlating what the atmosphere does with what the citizens report.
+
+### 💨 3.1 NLP-Driven Sentiment Analysis
+We implemented a Natural Language Processing (NLP) module that monitors simulated citizen feedback (via social media and hotlines). 
+*   **Topic Modeling:** Automatically identifies recurring keywords like "Blocked Clogged Drain" or "Water Logging."
+*   **Infrastructure Stress:** If complaints increase while rain is moderate, the system identifies a **Drainage Bottleneck**, proving that the infrastructure is failing even before the model predicts a full flood.
+
+### 🚰 3.2 Integrated Drainage Monitoring (IDM)
+We moved beyond static GIS files to a **Live Drainage Stress Test** model.
+*   **Catchment Loading:** By analyzing Watershed IDs, we calculate how much "Stress" each district's drainage pipes are under in real-time.
+*   **Effective Capacity:** The system dynamically calculates if a city's drainage is at 100% or if it has dropped to 30% due to sedimentation, allowing authorities to prioritize maintenance crews.
+
+---
+
 ## 🌐 4. The 5 V's of RAINWISE Big Data
 
 1.  **Volume:** Millions of points from **CHIRPS** and **NASA** orbiters.

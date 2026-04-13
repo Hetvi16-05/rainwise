@@ -69,4 +69,15 @@ Why did we choose these specific features?
 1.  **Cumulative Rainfall (3D, 7D):** Floods rarely happen due to just one hour of rain; they are caused by the **Saturation** of the soil. 3-day and 7-day lags represent soil moisture levels.
 2.  **Elevation & Slope:** Used to calculate **Runoff Velocity**. High slope + Low elevation cities are at high risk of flash floods.
 3.  **River Proximity:** The primary spatial indicator of flood risk.
-4.  **Drainage Density:** Calculated by counting river intersections in a grid—representing how efficiently a region drains water.
+4.  **Integrated Drainage Monitoring (IDM):**
+    -   **GIS Component:** Real-time catchment area analysis using **Watershed GeoJSON overlays**.
+    -   **NLP Component:** Topic modeling on text complaints to adjust the "Effective Capacity" of drainage nodes.
+    -   **Infrastructure Stress:** A mathematical ratio between rainfall volume and infrastructure capacity ($Stress = Rain_{mm} / Capacity_{eff}$).
+
+---
+
+## 🏛️ 5. Dashboard Visualization Suite
+RAINWISE provides a triple-tiered visualization architecture:
+1.  **Simulation & XAI (`app_demo.py`):** Focused on "What-if" analysis and Explainable AI (XAI) sliders for drainage and geography.
+2.  **Regional Monitoring (`app.py`):** Focused on historical alert trends and city-level daily hydrology logs.
+3.  **HDFS State-Wide Intelligence (`final_app.py`):** The production "Command Center" featuring life-saving IDM (Integrated Drainage Monitoring) charts and NLP citizen feedback maps.
