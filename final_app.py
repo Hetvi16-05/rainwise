@@ -27,7 +27,11 @@ if "alert_history" not in st.session_state:
 # ----------------------
 @st.cache_resource
 def load_models():
-    return joblib.load("models/flood_model.pkl"), joblib.load("models/rainfall_model.pkl")
+    return (
+        joblib.load("models/flood_model.pkl"), 
+        joblib.load("models/rainfall_model.pkl"),
+        joblib.load("models/advanced_simulation_model.pkl")
+    )
 
 @st.cache_data
 def load_city_data():
@@ -43,7 +47,7 @@ def load_gis_data():
     e.columns = e.columns.str.lower()
     return r, e
 
-flood_model, rainfall_model = load_models()
+flood_model, rainfall_model, adv_sim_model = load_models()
 cities_df = load_city_data()
 river_df, elev_df = load_gis_data()
 
@@ -58,29 +62,44 @@ def get_climatology(month):
         return {"temp": 22.0, "humid": 50.0, "pres": 1016.0, "wind": 8.0, "cloud": 5.0}
 
 @st.cache_data
-def predict_future_range(city_lat, city_lon, elevation, distance, start_dt, end_dt):
-    f_model, r_model = load_models()
-    dates = pd.date_range(start_dt, end_dt)
-    results = []
+def predict_future_range(city_name, city_lat, city_lon, elevation, distance, start_dt, end_dt):
+    from src.utils.simulation import SimulationPipeline
     
-    for dt in dates:
-        clim = get_climatology(dt.month)
-        # 1. Predict Rainfall (6 features: month, temp, humid, pres, wind, cloud)
-        atmos = np.array([[dt.month, clim["temp"], clim["humid"], clim["pres"], clim["wind"], clim["cloud"]]])
-        pred_rain = float(max(0.0, float(r_model.predict(atmos)[0])))
+    f_model, r_model, adv_model = load_models()
+    engine = SimulationPipeline(r_model, adv_model)
+    
+    # 7-DAY COLD START SEEDING
+    # Fetch real historical data for the 7 days prior to start_dt
+    seed_start = start_dt - pd.Timedelta(days=7)
+    seed_end = start_dt - pd.Timedelta(days=1)
+    
+    hist_seed_df = load_historical_data(city_lat, city_lon, seed_start, seed_end)
+    
+    if not hist_seed_df.empty:
+        # Use rain_mm from history
+        historical_rain = hist_seed_df.sort_values("date")["rain_mm"].tolist()
+        # Ensure we have exactly 7 days
+        if len(historical_rain) < 7:
+            historical_rain = [0.0] * (7 - len(historical_rain)) + historical_rain
+    else:
+        historical_rain = [0.0] * 7
         
-        # 2. Predict Flood (10 features from feature_engineering)
-        features = np.array([[pred_rain, elevation, distance, city_lat, city_lon]])
-        proba = float(f_model.predict_proba(features)[0][1])
-        
-        results.append({
-            "date": int(dt.strftime("%Y%m%d")),
-            "readable_date": dt,
-            "rain_mm": pred_rain,
-            "flood_probability": proba,
-            "type": "AI Simulation"
-        })
-    return pd.DataFrame(results)
+    city_meta = {
+        "lat": city_lat,
+        "lon": city_lon,
+        "elevation": elevation,
+        "river_distance": distance
+    }
+    
+    # Run the Advanced Simulation Engine
+    days_to_sim = (end_dt - start_dt).days + 1
+    sim_df = engine.run_simulation(city_meta, start_dt, days=days_to_sim, historical_seed=historical_rain)
+    
+    # Formatting for app compatibility
+    sim_df["readable_date"] = pd.to_datetime(sim_df["date"])
+    sim_df["type"] = "Advanced AI Simulation 🚀"
+    
+    return sim_df
 
 @st.cache_data
 def load_historical_data(city_lat, city_lon, start_dt, end_dt):
@@ -531,8 +550,8 @@ elif view_mode == "🔮 Seasonal Simulation":
     sim_end = c3.date_input("Simulation End", datetime(2026, month_num, 28 if month_num == 2 else 30))
 
     if st.button("🚀 Run Seasonal AI Simulation"):
-        with st.spinner(f"Simulating {month_name} atmospheric conditions..."):
-            sim_df = predict_future_range(lat, lon, elevation, distance, sim_start, sim_end)
+        with st.spinner(f"Running Two-Stage AI Pipeline for {month_name}..."):
+            sim_df = predict_future_range(city, lat, lon, elevation, distance, sim_start, sim_end)
         
         if not sim_df.empty:
             m1, m2, m3 = st.columns(3)
@@ -751,8 +770,8 @@ else:
             st.subheader("🔮 AI Future Simulation")
             sim_start = max(start_date, today)
             
-            with st.spinner("Running AI Simulation pipeline..."):
-                sim_df = predict_future_range(lat, lon, elevation, distance, sim_start, end_date)
+            with st.spinner("Executing seeded AI Simulation pipeline..."):
+                sim_df = predict_future_range(city, lat, lon, elevation, distance, sim_start, end_date)
             
             if not sim_df.empty:
                 m1, m2, m3 = st.columns(3)
