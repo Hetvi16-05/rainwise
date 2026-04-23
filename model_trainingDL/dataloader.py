@@ -6,9 +6,10 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 
 class FloodDataset(Dataset):
-    """Custom Dataset for Flood prediction."""
+    """Custom Dataset for Rainfall or Flood prediction."""
     def __init__(self, X, y):
         self.X = torch.tensor(X, dtype=torch.float32)
+        # Use float32 for regression, or ensure it's correct for BCE
         self.y = torch.tensor(y, dtype=torch.float32).view(-1, 1)
 
     def __len__(self):
@@ -17,20 +18,33 @@ class FloodDataset(Dataset):
     def __getitem__(self, idx):
         return self.X[idx], self.y[idx]
 
-def prepare_data(file_path, batch_size=64, test_size=0.2):
-    """Loads CSV, preprocesses, and returns DataLoaders."""
+def prepare_data(file_path, task_type="classification", batch_size=64, test_size=0.2):
+    """
+    Loads CSV, preprocesses, and returns DataLoaders.
+    task_type: 'classification' (Flood) or 'regression' (Rainfall)
+    """
     df = pd.read_csv(file_path, low_memory=False)
     df.columns = df.columns.str.lower()
     
     # Selecting the same features as the ML model for a fair baseline
     features = [
-        "rain_mm",
         "elevation_m",
         "distance_to_river_m",
         "lat",
-        "lon"
+        "lon",
+        "population_2026"
     ]
-    target = "flood"
+    
+    if task_type == "classification":
+        # Additional features for flood classification
+        features += ["rain_mm", "rain3_mm"]
+        target = "flood"
+        stratify_val = df[target] if target in df else None
+    else:
+        # Features for rainfall regression
+        features += ["rain3_mm"] 
+        target = "rain_mm" # Predicting daily rainfall
+        stratify_val = None
     
     # Drop NAs
     df = df[features + [target]].dropna()
@@ -40,7 +54,7 @@ def prepare_data(file_path, batch_size=64, test_size=0.2):
     
     # Split
     X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=test_size, random_state=42, stratify=y
+        X, y, test_size=test_size, random_state=42, stratify=stratify_val
     )
     
     # Normalize
