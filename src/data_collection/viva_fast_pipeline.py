@@ -92,6 +92,18 @@ def run_fast_viva_demo():
     except Exception as e:
         print(f"⚠️ [HDFS BRIDGE FAILED] Error: {e}")
 
+    # ── 7.5 Also sync to MongoDB ──────────────────────────────
+    try:
+        import subprocess
+        mongo_script = os.path.join(BASE_DIR, "mongo_enrich_and_launch.py")
+        subprocess.run(
+            [sys.executable, mongo_script],
+            capture_output=True, check=True
+        )
+        print(f"🍃 [MONGODB] Successfully synced new live data to MongoDB!")
+    except Exception as e:
+        print(f"⚠️ [MONGODB SYNC FAILED] Error: {e}")
+
     # ── 8. Show Growing File Stats ────────────────────────────
     rows_after = rows_before + len(df)
     file_size  = os.path.getsize(MASTER_LOCAL_PATH) / 1024  # KB
