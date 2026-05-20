@@ -326,11 +326,17 @@ with tab4:
             with c3:
                 st.markdown("#### 3. Spatial Population Density 🗺️")
                 st.code('db.city_summaries.find({}, {"_id": 0, "city": 1, "latitude": 1, "longitude": 1, "population": 1})', language='javascript')
-                cursor_geo = col_cities.find({}, {"_id": 0, "city": 1, "latitude": 1, "longitude": 1, "population": 1})
+                cursor_geo = col_cities.find(
+                    {"latitude": {"$ne": None}, "longitude": {"$ne": None}},
+                    {"_id": 0, "city": 1, "latitude": 1, "longitude": 1, "population": 1}
+                )
                 df_geo = pd.DataFrame(list(cursor_geo))
                 if not df_geo.empty:
+                    df_geo = df_geo.dropna(subset=["latitude", "longitude"])
+                    df_geo["population"] = pd.to_numeric(df_geo["population"], errors="coerce").fillna(50000)
                     fig12 = px.scatter_mapbox(df_geo, lat="latitude", lon="longitude", size="population", hover_name="city",
-                                              color_discrete_sequence=["#FF007F"], zoom=5, mapbox_style="carto-darkmatter")
+                                              color_discrete_sequence=["#FF007F"], zoom=5, mapbox_style="carto-darkmatter",
+                                              size_max=25)
                     fig12.update_layout(margin={"r":0,"t":0,"l":0,"b":0}, paper_bgcolor="#0E1117")
                     st.plotly_chart(fig12, use_container_width=True)
 

@@ -12,6 +12,7 @@
     <MarkAnimation />
     <ObjectModelEncapsulateLegacy />
     <ObjectModelExtractV2 />
+    <ObjectModelTableType />
     <SchemaViewerObjectModel />
     <SetMembershipControl />
     <SheetIdentifierTracking />
@@ -44,20 +45,295 @@
             <connection class='textscan' directory='/Users/HetviSheth/rainwise/data/processed' filename='training_dataset_gujarat_advanced_labeled.csv' password='' server='' />
           </named-connection>
         </named-connections>
+        <relation connection='textscan.01se45b1gn6b1k122eriz1e2r31k' name='training_dataset_gujarat_advanced_labeled.csv' table='[training_dataset_gujarat_advanced_labeled#csv]' type='table'>
+          <columns character-set='UTF-8' header='yes' locale='en_IN' separator=','>
+            <column datatype='date' name='date' ordinal='0' />
+            <column datatype='real' name='lat_x' ordinal='1' />
+            <column datatype='real' name='lon_x' ordinal='2' />
+            <column datatype='real' name='rain_mm' ordinal='3' />
+            <column datatype='string' name='state' ordinal='4' />
+            <column datatype='integer' name='lat_y' ordinal='5' />
+            <column datatype='integer' name='lon_y' ordinal='6' />
+            <column datatype='real' name='elevation_m' ordinal='7' />
+            <column datatype='real' name='distance_to_river_m' ordinal='8' />
+            <column datatype='integer' name='lat' ordinal='9' />
+            <column datatype='integer' name='lon' ordinal='10' />
+            <column datatype='real' name='river_distance' ordinal='11' />
+            <column datatype='real' name='precip_mm' ordinal='12' />
+            <column datatype='real' name='rain3_mm' ordinal='13' />
+            <column datatype='real' name='rain7_mm' ordinal='14' />
+            <column datatype='integer' name='flood' ordinal='15' />
+            <column datatype='integer' name='population_2026' ordinal='16' />
+            <column datatype='string' name='city' ordinal='17' />
+          </columns>
+        </relation>
+        <metadata-records>
+          <metadata-record class='capability'>
+            <remote-name />
+            <remote-type>0</remote-type>
+            <parent-name>[training_dataset_gujarat_advanced_labeled.csv]</parent-name>
+            <remote-alias />
+            <aggregation>Count</aggregation>
+            <contains-null>true</contains-null>
+            <attributes>
+              <attribute datatype='string' name='character-set'>&quot;UTF-8&quot;</attribute>
+              <attribute datatype='string' name='collation'>&quot;en_GB&quot;</attribute>
+              <attribute datatype='string' name='currency'>&quot;₹&quot;</attribute>
+              <attribute datatype='string' name='field-delimiter'>&quot;,&quot;</attribute>
+              <attribute datatype='string' name='header-row'>&quot;true&quot;</attribute>
+              <attribute datatype='string' name='locale'>&quot;en_IN&quot;</attribute>
+              <attribute datatype='string' name='single-char'>&quot;&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>date</remote-name>
+            <remote-type>133</remote-type>
+            <local-name>[date]</local-name>
+            <parent-name>[training_dataset_gujarat_advanced_labeled.csv]</parent-name>
+            <remote-alias>date</remote-alias>
+            <ordinal>0</ordinal>
+            <local-type>date</local-type>
+            <aggregation>Year</aggregation>
+            <contains-null>true</contains-null>
+            <object-id>[training_dataset_gujarat_advanced_labeled.csv_07A1A265286245BCA62562443DE815F0]</object-id>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>lat_x</remote-name>
+            <remote-type>5</remote-type>
+            <local-name>[lat_x]</local-name>
+            <parent-name>[training_dataset_gujarat_advanced_labeled.csv]</parent-name>
+            <remote-alias>lat_x</remote-alias>
+            <ordinal>1</ordinal>
+            <local-type>real</local-type>
+            <aggregation>Sum</aggregation>
+            <contains-null>true</contains-null>
+            <object-id>[training_dataset_gujarat_advanced_labeled.csv_07A1A265286245BCA62562443DE815F0]</object-id>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>lon_x</remote-name>
+            <remote-type>5</remote-type>
+            <local-name>[lon_x]</local-name>
+            <parent-name>[training_dataset_gujarat_advanced_labeled.csv]</parent-name>
+            <remote-alias>lon_x</remote-alias>
+            <ordinal>2</ordinal>
+            <local-type>real</local-type>
+            <aggregation>Sum</aggregation>
+            <contains-null>true</contains-null>
+            <object-id>[training_dataset_gujarat_advanced_labeled.csv_07A1A265286245BCA62562443DE815F0]</object-id>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>rain_mm</remote-name>
+            <remote-type>5</remote-type>
+            <local-name>[rain_mm]</local-name>
+            <parent-name>[training_dataset_gujarat_advanced_labeled.csv]</parent-name>
+            <remote-alias>rain_mm</remote-alias>
+            <ordinal>3</ordinal>
+            <local-type>real</local-type>
+            <aggregation>Sum</aggregation>
+            <contains-null>true</contains-null>
+            <object-id>[training_dataset_gujarat_advanced_labeled.csv_07A1A265286245BCA62562443DE815F0]</object-id>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>state</remote-name>
+            <remote-type>129</remote-type>
+            <local-name>[state]</local-name>
+            <parent-name>[training_dataset_gujarat_advanced_labeled.csv]</parent-name>
+            <remote-alias>state</remote-alias>
+            <ordinal>4</ordinal>
+            <local-type>string</local-type>
+            <aggregation>Count</aggregation>
+            <scale>1</scale>
+            <width>1073741823</width>
+            <contains-null>true</contains-null>
+            <collation flag='0' name='LEN_RGB' />
+            <object-id>[training_dataset_gujarat_advanced_labeled.csv_07A1A265286245BCA62562443DE815F0]</object-id>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>lat_y</remote-name>
+            <remote-type>20</remote-type>
+            <local-name>[lat_y]</local-name>
+            <parent-name>[training_dataset_gujarat_advanced_labeled.csv]</parent-name>
+            <remote-alias>lat_y</remote-alias>
+            <ordinal>5</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <contains-null>true</contains-null>
+            <object-id>[training_dataset_gujarat_advanced_labeled.csv_07A1A265286245BCA62562443DE815F0]</object-id>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>lon_y</remote-name>
+            <remote-type>20</remote-type>
+            <local-name>[lon_y]</local-name>
+            <parent-name>[training_dataset_gujarat_advanced_labeled.csv]</parent-name>
+            <remote-alias>lon_y</remote-alias>
+            <ordinal>6</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <contains-null>true</contains-null>
+            <object-id>[training_dataset_gujarat_advanced_labeled.csv_07A1A265286245BCA62562443DE815F0]</object-id>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>elevation_m</remote-name>
+            <remote-type>5</remote-type>
+            <local-name>[elevation_m]</local-name>
+            <parent-name>[training_dataset_gujarat_advanced_labeled.csv]</parent-name>
+            <remote-alias>elevation_m</remote-alias>
+            <ordinal>7</ordinal>
+            <local-type>real</local-type>
+            <aggregation>Sum</aggregation>
+            <contains-null>true</contains-null>
+            <object-id>[training_dataset_gujarat_advanced_labeled.csv_07A1A265286245BCA62562443DE815F0]</object-id>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>distance_to_river_m</remote-name>
+            <remote-type>5</remote-type>
+            <local-name>[distance_to_river_m]</local-name>
+            <parent-name>[training_dataset_gujarat_advanced_labeled.csv]</parent-name>
+            <remote-alias>distance_to_river_m</remote-alias>
+            <ordinal>8</ordinal>
+            <local-type>real</local-type>
+            <aggregation>Sum</aggregation>
+            <contains-null>true</contains-null>
+            <object-id>[training_dataset_gujarat_advanced_labeled.csv_07A1A265286245BCA62562443DE815F0]</object-id>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>lat</remote-name>
+            <remote-type>20</remote-type>
+            <local-name>[lat]</local-name>
+            <parent-name>[training_dataset_gujarat_advanced_labeled.csv]</parent-name>
+            <remote-alias>lat</remote-alias>
+            <ordinal>9</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <contains-null>true</contains-null>
+            <object-id>[training_dataset_gujarat_advanced_labeled.csv_07A1A265286245BCA62562443DE815F0]</object-id>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>lon</remote-name>
+            <remote-type>20</remote-type>
+            <local-name>[lon]</local-name>
+            <parent-name>[training_dataset_gujarat_advanced_labeled.csv]</parent-name>
+            <remote-alias>lon</remote-alias>
+            <ordinal>10</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <contains-null>true</contains-null>
+            <object-id>[training_dataset_gujarat_advanced_labeled.csv_07A1A265286245BCA62562443DE815F0]</object-id>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>river_distance</remote-name>
+            <remote-type>5</remote-type>
+            <local-name>[river_distance]</local-name>
+            <parent-name>[training_dataset_gujarat_advanced_labeled.csv]</parent-name>
+            <remote-alias>river_distance</remote-alias>
+            <ordinal>11</ordinal>
+            <local-type>real</local-type>
+            <aggregation>Sum</aggregation>
+            <contains-null>true</contains-null>
+            <object-id>[training_dataset_gujarat_advanced_labeled.csv_07A1A265286245BCA62562443DE815F0]</object-id>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>precip_mm</remote-name>
+            <remote-type>5</remote-type>
+            <local-name>[precip_mm]</local-name>
+            <parent-name>[training_dataset_gujarat_advanced_labeled.csv]</parent-name>
+            <remote-alias>precip_mm</remote-alias>
+            <ordinal>12</ordinal>
+            <local-type>real</local-type>
+            <aggregation>Sum</aggregation>
+            <contains-null>true</contains-null>
+            <object-id>[training_dataset_gujarat_advanced_labeled.csv_07A1A265286245BCA62562443DE815F0]</object-id>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>rain3_mm</remote-name>
+            <remote-type>5</remote-type>
+            <local-name>[rain3_mm]</local-name>
+            <parent-name>[training_dataset_gujarat_advanced_labeled.csv]</parent-name>
+            <remote-alias>rain3_mm</remote-alias>
+            <ordinal>13</ordinal>
+            <local-type>real</local-type>
+            <aggregation>Sum</aggregation>
+            <contains-null>true</contains-null>
+            <object-id>[training_dataset_gujarat_advanced_labeled.csv_07A1A265286245BCA62562443DE815F0]</object-id>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>rain7_mm</remote-name>
+            <remote-type>5</remote-type>
+            <local-name>[rain7_mm]</local-name>
+            <parent-name>[training_dataset_gujarat_advanced_labeled.csv]</parent-name>
+            <remote-alias>rain7_mm</remote-alias>
+            <ordinal>14</ordinal>
+            <local-type>real</local-type>
+            <aggregation>Sum</aggregation>
+            <contains-null>true</contains-null>
+            <object-id>[training_dataset_gujarat_advanced_labeled.csv_07A1A265286245BCA62562443DE815F0]</object-id>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>flood</remote-name>
+            <remote-type>20</remote-type>
+            <local-name>[flood]</local-name>
+            <parent-name>[training_dataset_gujarat_advanced_labeled.csv]</parent-name>
+            <remote-alias>flood</remote-alias>
+            <ordinal>15</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <contains-null>true</contains-null>
+            <object-id>[training_dataset_gujarat_advanced_labeled.csv_07A1A265286245BCA62562443DE815F0]</object-id>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>population_2026</remote-name>
+            <remote-type>20</remote-type>
+            <local-name>[population_2026]</local-name>
+            <parent-name>[training_dataset_gujarat_advanced_labeled.csv]</parent-name>
+            <remote-alias>population_2026</remote-alias>
+            <ordinal>16</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <contains-null>true</contains-null>
+            <object-id>[training_dataset_gujarat_advanced_labeled.csv_07A1A265286245BCA62562443DE815F0]</object-id>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>city</remote-name>
+            <remote-type>129</remote-type>
+            <local-name>[city]</local-name>
+            <parent-name>[training_dataset_gujarat_advanced_labeled.csv]</parent-name>
+            <remote-alias>city</remote-alias>
+            <ordinal>17</ordinal>
+            <local-type>string</local-type>
+            <aggregation>Count</aggregation>
+            <scale>1</scale>
+            <width>1073741823</width>
+            <contains-null>true</contains-null>
+            <collation flag='0' name='LEN_RGB' />
+            <object-id>[training_dataset_gujarat_advanced_labeled.csv_07A1A265286245BCA62562443DE815F0]</object-id>
+          </metadata-record>
+        </metadata-records>
       </connection>
       <aliases enabled='yes' />
       <column caption='Dynamic Date' datatype='datetime' name='[Calculation_0611811694391296]' role='dimension' type='ordinal'>
         <calculation class='tableau' formula='CASE [Parameters].[Parameter 1]&#10;&#10;WHEN &quot;Day&quot; THEN DATETRUNC(&apos;day&apos;,[date])&#10;&#10;WHEN &quot;Month&quot; THEN DATETRUNC(&apos;month&apos;,[date])&#10;&#10;WHEN &quot;Year&quot; THEN DATETRUNC(&apos;year&apos;,[date])&#10;&#10;END' />
       </column>
-      <column datatype='integer' name='[Flood (bin)]' role='dimension' type='quantitative'>
+      <column aggregation='None' datatype='integer' name='[Flood (bin)]' role='dimension' type='quantitative'>
         <calculation class='bin' decimals='-1' formula='[flood]' peg='0' size='0.303' />
       </column>
+      <column caption='training_dataset_gujarat_advanced_labeled.csv' datatype='table' name='[__tableau_internal_object_id__].[training_dataset_gujarat_advanced_labeled.csv_07A1A265286245BCA62562443DE815F0]' role='measure' type='quantitative' />
       <column caption='City' datatype='string' name='[city]' role='dimension' semantic-role='[City].[Name]' type='nominal' />
       <column caption='Date' datatype='date' name='[date]' role='dimension' type='ordinal' />
       <column caption='Distance To River M' datatype='real' name='[distance_to_river_m]' role='measure' type='quantitative' />
       <column caption='Elevation M' datatype='real' name='[elevation_m]' role='measure' type='quantitative' />
       <column aggregation='Sum' caption='Flood' datatype='integer' name='[flood]' role='dimension' type='ordinal' />
+      <column aggregation='Avg' caption='Lat' datatype='integer' name='[lat]' role='measure' semantic-role='[Geographical].[Latitude]' type='quantitative' />
+      <column aggregation='Avg' caption='Lat X' datatype='real' name='[lat_x]' role='measure' semantic-role='[Geographical].[Latitude]' type='quantitative' />
+      <column aggregation='Avg' caption='Lat Y' datatype='integer' name='[lat_y]' role='measure' semantic-role='[Geographical].[Latitude]' type='quantitative' />
+      <column aggregation='Avg' caption='Lon' datatype='integer' name='[lon]' role='measure' semantic-role='[Geographical].[Longitude]' type='quantitative' />
+      <column aggregation='Avg' caption='Lon X' datatype='real' name='[lon_x]' role='measure' semantic-role='[Geographical].[Longitude]' type='quantitative' />
+      <column aggregation='Avg' caption='Lon Y' datatype='integer' name='[lon_y]' role='measure' semantic-role='[Geographical].[Longitude]' type='quantitative' />
+      <column caption='Population 2026' datatype='integer' name='[population_2026]' role='measure' type='quantitative' />
+      <column caption='Precip Mm' datatype='real' name='[precip_mm]' role='measure' type='quantitative' />
+      <column caption='Rain3 Mm' datatype='real' name='[rain3_mm]' role='measure' type='quantitative' />
+      <column caption='Rain7 Mm' datatype='real' name='[rain7_mm]' role='measure' type='quantitative' />
       <column caption='Rain Mm' datatype='real' name='[rain_mm]' role='measure' type='quantitative' />
+      <column caption='River Distance' datatype='real' name='[river_distance]' role='measure' type='quantitative' />
       <column caption='State' datatype='string' name='[state]' role='dimension' semantic-role='[State].[Name]' type='nominal' />
       <drill-paths>
         <drill-path name='state, city'>
@@ -66,8 +342,8 @@
           <field>[city]</field>
         </drill-path>
       </drill-paths>
-      <extract _.fcp.VConnDownstreamExtractsWithWarnings.true...user-specific='false' count='-1' enabled='false' object-id='' units='records'>
-        <connection access_mode='readonly' author-locale='en_US' class='hyper' dbname='/var/folders/mt/f_l7ylpd1sv427t3wntfppvh0000gn/T/tableau-temp/#TableauTemp_0tqtc3d1yil8yy18a68cs0rewfwd.hyper' default-settings='hyper' schema='Extract' sslmode='' tablename='Extract' update-time='05/16/2026 08:47:17 AM' username='tableau_internal_user'>
+      <extract _.fcp.VConnDownstreamExtractsWithWarnings.true...user-specific='false' count='-1' enabled='true' object-id='' units='records'>
+        <connection access_mode='readonly' author-locale='en_US' class='hyper' dbname='/var/folders/mt/f_l7ylpd1sv427t3wntfppvh0000gn/T/tableau-temp/#TableauTemp_14bfjp20h9ovy61964tcu1mobcxi.hyper' default-settings='hyper' schema='Extract' sslmode='' tablename='Extract' update-time='05/16/2026 10:35:08 AM' username='tableau_internal_user'>
           <relation name='Extract' table='[Extract].[Extract]' type='table' />
           <metadata-records>
             <metadata-record class='column'>
@@ -80,9 +356,9 @@
               <family>training_dataset_gujarat_advanced_labeled.csv</family>
               <local-type>date</local-type>
               <aggregation>Year</aggregation>
-              <approx-count>49774</approx-count>
+              <approx-count>51596</approx-count>
               <contains-null>true</contains-null>
-              <object-id>[training_dataset_gujarat_advanced_labeled.csv_2D946C45BCF64346BFDE9354EDB8852B]</object-id>
+              <object-id>[training_dataset_gujarat_advanced_labeled.csv_07A1A265286245BCA62562443DE815F0]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>lat_x</remote-name>
@@ -96,7 +372,7 @@
               <aggregation>Sum</aggregation>
               <approx-count>1</approx-count>
               <contains-null>true</contains-null>
-              <object-id>[training_dataset_gujarat_advanced_labeled.csv_2D946C45BCF64346BFDE9354EDB8852B]</object-id>
+              <object-id>[training_dataset_gujarat_advanced_labeled.csv_07A1A265286245BCA62562443DE815F0]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>lon_x</remote-name>
@@ -110,7 +386,7 @@
               <aggregation>Sum</aggregation>
               <approx-count>1</approx-count>
               <contains-null>true</contains-null>
-              <object-id>[training_dataset_gujarat_advanced_labeled.csv_2D946C45BCF64346BFDE9354EDB8852B]</object-id>
+              <object-id>[training_dataset_gujarat_advanced_labeled.csv_07A1A265286245BCA62562443DE815F0]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>rain_mm</remote-name>
@@ -122,9 +398,9 @@
               <family>training_dataset_gujarat_advanced_labeled.csv</family>
               <local-type>real</local-type>
               <aggregation>Sum</aggregation>
-              <approx-count>21350</approx-count>
+              <approx-count>21573</approx-count>
               <contains-null>true</contains-null>
-              <object-id>[training_dataset_gujarat_advanced_labeled.csv_2D946C45BCF64346BFDE9354EDB8852B]</object-id>
+              <object-id>[training_dataset_gujarat_advanced_labeled.csv_07A1A265286245BCA62562443DE815F0]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>state</remote-name>
@@ -139,7 +415,7 @@
               <approx-count>1</approx-count>
               <contains-null>true</contains-null>
               <collation flag='0' name='LEN_RGB' />
-              <object-id>[training_dataset_gujarat_advanced_labeled.csv_2D946C45BCF64346BFDE9354EDB8852B]</object-id>
+              <object-id>[training_dataset_gujarat_advanced_labeled.csv_07A1A265286245BCA62562443DE815F0]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>lat_y</remote-name>
@@ -153,7 +429,7 @@
               <aggregation>Sum</aggregation>
               <approx-count>16</approx-count>
               <contains-null>true</contains-null>
-              <object-id>[training_dataset_gujarat_advanced_labeled.csv_2D946C45BCF64346BFDE9354EDB8852B]</object-id>
+              <object-id>[training_dataset_gujarat_advanced_labeled.csv_07A1A265286245BCA62562443DE815F0]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>lon_y</remote-name>
@@ -167,7 +443,7 @@
               <aggregation>Sum</aggregation>
               <approx-count>15</approx-count>
               <contains-null>true</contains-null>
-              <object-id>[training_dataset_gujarat_advanced_labeled.csv_2D946C45BCF64346BFDE9354EDB8852B]</object-id>
+              <object-id>[training_dataset_gujarat_advanced_labeled.csv_07A1A265286245BCA62562443DE815F0]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>elevation_m</remote-name>
@@ -181,7 +457,7 @@
               <aggregation>Sum</aggregation>
               <approx-count>19</approx-count>
               <contains-null>true</contains-null>
-              <object-id>[training_dataset_gujarat_advanced_labeled.csv_2D946C45BCF64346BFDE9354EDB8852B]</object-id>
+              <object-id>[training_dataset_gujarat_advanced_labeled.csv_07A1A265286245BCA62562443DE815F0]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>distance_to_river_m</remote-name>
@@ -195,7 +471,7 @@
               <aggregation>Sum</aggregation>
               <approx-count>240</approx-count>
               <contains-null>true</contains-null>
-              <object-id>[training_dataset_gujarat_advanced_labeled.csv_2D946C45BCF64346BFDE9354EDB8852B]</object-id>
+              <object-id>[training_dataset_gujarat_advanced_labeled.csv_07A1A265286245BCA62562443DE815F0]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>lat</remote-name>
@@ -209,7 +485,7 @@
               <aggregation>Sum</aggregation>
               <approx-count>16</approx-count>
               <contains-null>true</contains-null>
-              <object-id>[training_dataset_gujarat_advanced_labeled.csv_2D946C45BCF64346BFDE9354EDB8852B]</object-id>
+              <object-id>[training_dataset_gujarat_advanced_labeled.csv_07A1A265286245BCA62562443DE815F0]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>lon</remote-name>
@@ -223,7 +499,7 @@
               <aggregation>Sum</aggregation>
               <approx-count>15</approx-count>
               <contains-null>true</contains-null>
-              <object-id>[training_dataset_gujarat_advanced_labeled.csv_2D946C45BCF64346BFDE9354EDB8852B]</object-id>
+              <object-id>[training_dataset_gujarat_advanced_labeled.csv_07A1A265286245BCA62562443DE815F0]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>river_distance</remote-name>
@@ -237,7 +513,7 @@
               <aggregation>Sum</aggregation>
               <approx-count>1</approx-count>
               <contains-null>true</contains-null>
-              <object-id>[training_dataset_gujarat_advanced_labeled.csv_2D946C45BCF64346BFDE9354EDB8852B]</object-id>
+              <object-id>[training_dataset_gujarat_advanced_labeled.csv_07A1A265286245BCA62562443DE815F0]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>precip_mm</remote-name>
@@ -249,9 +525,9 @@
               <family>training_dataset_gujarat_advanced_labeled.csv</family>
               <local-type>real</local-type>
               <aggregation>Sum</aggregation>
-              <approx-count>21350</approx-count>
+              <approx-count>21573</approx-count>
               <contains-null>true</contains-null>
-              <object-id>[training_dataset_gujarat_advanced_labeled.csv_2D946C45BCF64346BFDE9354EDB8852B]</object-id>
+              <object-id>[training_dataset_gujarat_advanced_labeled.csv_07A1A265286245BCA62562443DE815F0]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>rain3_mm</remote-name>
@@ -263,9 +539,9 @@
               <family>training_dataset_gujarat_advanced_labeled.csv</family>
               <local-type>real</local-type>
               <aggregation>Sum</aggregation>
-              <approx-count>21350</approx-count>
+              <approx-count>21573</approx-count>
               <contains-null>true</contains-null>
-              <object-id>[training_dataset_gujarat_advanced_labeled.csv_2D946C45BCF64346BFDE9354EDB8852B]</object-id>
+              <object-id>[training_dataset_gujarat_advanced_labeled.csv_07A1A265286245BCA62562443DE815F0]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>rain7_mm</remote-name>
@@ -277,9 +553,9 @@
               <family>training_dataset_gujarat_advanced_labeled.csv</family>
               <local-type>real</local-type>
               <aggregation>Sum</aggregation>
-              <approx-count>21350</approx-count>
+              <approx-count>21573</approx-count>
               <contains-null>true</contains-null>
-              <object-id>[training_dataset_gujarat_advanced_labeled.csv_2D946C45BCF64346BFDE9354EDB8852B]</object-id>
+              <object-id>[training_dataset_gujarat_advanced_labeled.csv_07A1A265286245BCA62562443DE815F0]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>flood</remote-name>
@@ -293,7 +569,7 @@
               <aggregation>Sum</aggregation>
               <approx-count>2</approx-count>
               <contains-null>true</contains-null>
-              <object-id>[training_dataset_gujarat_advanced_labeled.csv_2D946C45BCF64346BFDE9354EDB8852B]</object-id>
+              <object-id>[training_dataset_gujarat_advanced_labeled.csv_07A1A265286245BCA62562443DE815F0]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>population_2026</remote-name>
@@ -307,7 +583,7 @@
               <aggregation>Sum</aggregation>
               <approx-count>13</approx-count>
               <contains-null>true</contains-null>
-              <object-id>[training_dataset_gujarat_advanced_labeled.csv_2D946C45BCF64346BFDE9354EDB8852B]</object-id>
+              <object-id>[training_dataset_gujarat_advanced_labeled.csv_07A1A265286245BCA62562443DE815F0]</object-id>
             </metadata-record>
             <metadata-record class='column'>
               <remote-name>city</remote-name>
@@ -322,7 +598,7 @@
               <approx-count>19</approx-count>
               <contains-null>true</contains-null>
               <collation flag='0' name='LEN_RGB' />
-              <object-id>[training_dataset_gujarat_advanced_labeled.csv_2D946C45BCF64346BFDE9354EDB8852B]</object-id>
+              <object-id>[training_dataset_gujarat_advanced_labeled.csv_07A1A265286245BCA62562443DE815F0]</object-id>
             </metadata-record>
           </metadata-records>
         </connection>
@@ -331,9 +607,38 @@
       <semantic-values>
         <semantic-value key='[Country].[Name]' value='&quot;India&quot;' />
       </semantic-values>
+      <datasource-dependencies datasource='Parameters'>
+        <column caption='Date View' datatype='string' name='[Parameter 1]' param-domain-type='list' role='measure' type='nominal' value='&quot;Year&quot;'>
+          <calculation class='tableau' formula='&quot;Year&quot;' />
+        </column>
+      </datasource-dependencies>
       <object-graph>
         <objects>
-          <object caption='training_dataset_gujarat_advanced_labeled.csv' id='training_dataset_gujarat_advanced_labeled.csv_2D946C45BCF64346BFDE9354EDB8852B'>
+          <object caption='training_dataset_gujarat_advanced_labeled.csv' id='training_dataset_gujarat_advanced_labeled.csv_07A1A265286245BCA62562443DE815F0'>
+            <properties context=''>
+              <relation connection='textscan.01se45b1gn6b1k122eriz1e2r31k' name='training_dataset_gujarat_advanced_labeled.csv' table='[training_dataset_gujarat_advanced_labeled#csv]' type='table'>
+                <columns character-set='UTF-8' header='yes' locale='en_IN' separator=','>
+                  <column datatype='date' name='date' ordinal='0' />
+                  <column datatype='real' name='lat_x' ordinal='1' />
+                  <column datatype='real' name='lon_x' ordinal='2' />
+                  <column datatype='real' name='rain_mm' ordinal='3' />
+                  <column datatype='string' name='state' ordinal='4' />
+                  <column datatype='integer' name='lat_y' ordinal='5' />
+                  <column datatype='integer' name='lon_y' ordinal='6' />
+                  <column datatype='real' name='elevation_m' ordinal='7' />
+                  <column datatype='real' name='distance_to_river_m' ordinal='8' />
+                  <column datatype='integer' name='lat' ordinal='9' />
+                  <column datatype='integer' name='lon' ordinal='10' />
+                  <column datatype='real' name='river_distance' ordinal='11' />
+                  <column datatype='real' name='precip_mm' ordinal='12' />
+                  <column datatype='real' name='rain3_mm' ordinal='13' />
+                  <column datatype='real' name='rain7_mm' ordinal='14' />
+                  <column datatype='integer' name='flood' ordinal='15' />
+                  <column datatype='integer' name='population_2026' ordinal='16' />
+                  <column datatype='string' name='city' ordinal='17' />
+                </columns>
+              </relation>
+            </properties>
             <properties context='extract'>
               <relation name='Extract' table='[Extract].[Extract]' type='table' />
             </properties>
@@ -562,6 +867,26 @@
         <cols />
       </table>
       <simple-id uuid='{044DA67F-0959-4933-9FDE-88ADD5701039}' />
+    </worksheet>
+    <worksheet name='Sheet 12'>
+      <table>
+        <view>
+          <datasources />
+          <aggregation value='true' />
+        </view>
+        <style />
+        <panes>
+          <pane selection-relaxation-option='selection-relaxation-allow'>
+            <view>
+              <breakdown value='auto' />
+            </view>
+            <mark class='Automatic' />
+          </pane>
+        </panes>
+        <rows />
+        <cols />
+      </table>
+      <simple-id uuid='{6582C431-303E-4A4E-9DD1-A6154BC9D80C}' />
     </worksheet>
     <worksheet name='Sheet 2'>
       <layout-options>
@@ -1278,7 +1603,7 @@
     </dashboard>
   </dashboards>
   <windows source-height='30'>
-    <window class='worksheet' maximized='true' name='Sheet 1'>
+    <window class='worksheet' name='Sheet 1'>
       <cards>
         <edge name='left'>
           <strip size='100'>
@@ -1376,7 +1701,7 @@
       </cards>
       <simple-id uuid='{DB9A55A8-E455-42C5-A565-A7DE8AEEE677}' />
     </window>
-    <window class='dashboard' name='Dashboard 2'>
+    <window class='dashboard' maximized='true' name='Dashboard 2'>
       <viewpoints>
         <viewpoint name='Sheet 1'>
           <zoom type='entire-view' />
@@ -1549,6 +1874,29 @@
         </edge>
       </cards>
       <simple-id uuid='{4D77D5FF-6486-4ACA-B6E2-FA4678245C75}' />
+    </window>
+    <window class='worksheet' name='Sheet 12'>
+      <cards>
+        <edge name='left'>
+          <strip size='160'>
+            <card type='pages' />
+            <card type='filters' />
+            <card type='marks' />
+          </strip>
+        </edge>
+        <edge name='top'>
+          <strip size='2147483647'>
+            <card type='columns' />
+          </strip>
+          <strip size='2147483647'>
+            <card type='rows' />
+          </strip>
+          <strip size='31'>
+            <card type='title' />
+          </strip>
+        </edge>
+      </cards>
+      <simple-id uuid='{78BC41E3-6E53-4A00-AAC2-441C21D04390}' />
     </window>
   </windows>
   <_.fcp.VizExtensions.true...referenced-extensions>
