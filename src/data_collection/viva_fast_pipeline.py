@@ -79,17 +79,18 @@ def run_fast_viva_demo():
     try:
         import subprocess
         real_hdfs = "/user/HetviSheth/rainwise/raw/realtime/realtime_dataset.csv"
+        hadoop_bin = "/Users/HetviSheth/Downloads/hadoop-3.3.6/bin/hadoop"
         subprocess.run(
-            ["hadoop", "fs", "-mkdir", "-p", os.path.dirname(real_hdfs)],
-            capture_output=True
+            [hadoop_bin, "fs", "-mkdir", "-p", os.path.dirname(real_hdfs)],
+            capture_output=True, check=True
         )
         subprocess.run(
-            ["hadoop", "fs", "-put", "-f", MASTER_LOCAL_PATH, real_hdfs],
-            capture_output=True
+            [hadoop_bin, "fs", "-put", "-f", MASTER_LOCAL_PATH, real_hdfs],
+            capture_output=True, check=True
         )
         print(f"🌉 [HDFS BRIDGE] Synced to Official Hadoop: {real_hdfs}")
-    except Exception:
-        pass  # Silently fall back if Hadoop is offline
+    except Exception as e:
+        print(f"⚠️ [HDFS BRIDGE FAILED] Error: {e}")
 
     # ── 8. Show Growing File Stats ────────────────────────────
     rows_after = rows_before + len(df)
