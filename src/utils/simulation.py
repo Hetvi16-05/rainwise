@@ -139,12 +139,18 @@ class DeepSimulationPipeline:
             rain3 = sum(rain_memory[-3:])
             
             # STAGE 1: Rainfall Prediction (TabTransformer)
-            # Features: [elev, dist, lat, lon, pop, rain3]
-            r_feat = [city_meta["elevation"], city_meta["river_distance"], city_meta["lat"], city_meta["lon"], float(population), rain3]
+            # Features: [elev, dist, lat, lon, pop, month, rain3]
+            r_feat = [city_meta["elevation"], city_meta["river_distance"], city_meta["lat"], city_meta["lon"], float(population), float(current_date.month), rain3]
             r_scaled = self.rain_scaler.transform([r_feat])
             
             with torch.no_grad():
-                pred_rain = max(0.0, self.rain_model(torch.tensor(r_scaled, dtype=torch.float32)).item())
+                base_pred = self.rain_model(torch.tensor(r_scaled, dtype=torch.float32)).item()
+                
+            # Introduce organic weather variance derived dynamically from simulated weather
+            weather = WeatherSimulator.simulate_day(current_date.month, city_meta["lat"], city_meta["lon"])
+            # Higher humidity and cloud cover means higher potential rainfall variance
+            dynamic_noise = (weather["cloud_cover"] * weather["humidity"]) / 500.0
+            pred_rain = max(0.0, base_pred + np.random.normal(0, dynamic_noise))
             
             # STAGE 2: Flood Prediction (FloodDNN)
             # Features: [rain, elev, dist, lat, lon]

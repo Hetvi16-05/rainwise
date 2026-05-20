@@ -62,7 +62,7 @@ def load_models():
     
     # 2. DL Models
     device = torch.device("cpu")
-    rain_dl = TabTransformer(input_dim=6, depth=3)
+    rain_dl = TabTransformer(input_dim=7, depth=3)
     if os.path.exists("DLmodels/tab_transformer_rainfall.pth"):
         rain_dl.load_state_dict(torch.load("DLmodels/tab_transformer_rainfall.pth", map_location=device))
     rain_dl.eval()
@@ -106,7 +106,6 @@ def get_climatology(month):
     else: # Winter/Post-Monsoon
         return {"temp": 22.0, "humid": 50.0, "pres": 1016.0, "wind": 8.0, "cloud": 5.0}
 
-@st.cache_data
 def predict_future_range(city_name, city_lat, city_lon, elevation, distance, start_dt, end_dt, engine="ML (Production)"):
     from src.utils.simulation import SimulationPipeline, DeepSimulationPipeline
     
