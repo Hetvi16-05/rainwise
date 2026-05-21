@@ -104,6 +104,18 @@ def run_fast_viva_demo():
     except Exception as e:
         print(f"⚠️ [MONGODB SYNC FAILED] Error: {e}")
 
+    # ── 7.6 Fetch Live River Discharge ───────────────────────
+    try:
+        import subprocess
+        river_script = os.path.join(BASE_DIR, "src", "data_collection", "realtime_river.py")
+        subprocess.run(
+            [sys.executable, river_script],
+            capture_output=True, check=True
+        )
+        print(f"🏞️ [RIVER] Successfully fetched live river discharge data!")
+    except Exception as e:
+        print(f"⚠️ [RIVER FETCH FAILED] Error: {e}")
+
     # ── 8. Show Growing File Stats ────────────────────────────
     rows_after = rows_before + len(df)
     file_size  = os.path.getsize(MASTER_LOCAL_PATH) / 1024  # KB
