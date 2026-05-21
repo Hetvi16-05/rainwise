@@ -1,0 +1,65 @@
+====================================================================
+RAINWISE AI ARCHITECTURE: DEEP LEARNING VIVA EXPLANATION GUIDE
+====================================================================
+
+This document outlines the two core Deep Learning models used in the RAINWISE architecture: The Flood-Risk DNN and the Rainfall-Forecasting TFT.
+
+--------------------------------------------------------------------
+1. DNN-Flood (Deep Neural Network for Flood Risk Scoring)
+--------------------------------------------------------------------
+WHAT IT DOES:
+It takes static geographical data and real-time telemetry to calculate a live "Flood Risk Score" (0-100) for any given city.
+
+WHY WE USED IT:
+Flood risk is highly non-linear. A simple algorithmic rule (like "if rain > 100mm, then flood") fails in the real world. Why? Because 100mm of rain on a high-elevation mountain is safe, but 100mm of rain in a low-elevation coastal city near a river is a disaster. 
+A DNN is used because its hidden layers act as a "pattern recognizer" that can mathematically learn these complex, multi-variable interactions. 
+
+REAL-WORLD EXAMPLE:
+- Scenario A: Surat gets 150mm rain, elevation is 13m, distance to river is 2km. The DNN outputs a Critical Risk (92/100).
+- Scenario B: Saputara gets 150mm rain, elevation is 1000m, distance to river is 30km. The DNN outputs a Low Risk (15/100).
+The model learned that elevation and river proximity heavily amplify rainfall danger.
+
+PROCESSING PIPELINE (Step-by-Step):
+1. Input Layer: Receives raw continuous data from the Spark pipeline (rain_mm, humidity_percent, elevation_m, distance_to_river_m, population_2026).
+2. Data Scaling (StandardScaler): Normalizes all inputs so massive numbers (Population: 5,000,000) don't mathematically overpower small numbers (Elevation: 10m).
+3. Hidden Dense Layers (The Brain): Multiple layers of neurons (e.g., 256 -> 128 -> 64) connected via ReLU activation functions. This is where the model learns the non-linear rules (e.g., crossing a specific low elevation threshold causes risk to spike).
+4. Dropout Layers: Randomly turns off some neurons during training (e.g., 30% dropout) so the model doesn't "memorize" the training data, forcing it to learn actual geographic rules.
+5. Output Layer: A single neuron with a 'Sigmoid' activation function. It squashes the final calculation into a strict probability between 0.0 and 1.0. We multiply by 100 to get the dashboard percentage.
+
+
+--------------------------------------------------------------------
+2. TFT (Temporal Fusion Transformer for Rainfall Forecasting)
+--------------------------------------------------------------------
+WHAT IT DOES:
+It predicts future rainfall and gives us the "Worst Case Scenario" (Quantile forecasts) rather than just a single average guess.
+
+WHY WE USED IT:
+Predicting weather is a Time-Series problem, but standard Time-Series models (like ARIMA or LSTMs) struggle with "Seasonality" (the monsoon cycle). If the model sees 0mm of rain for all of May, a standard model will predict 0mm for June. 
+We used the TFT because it is a state-of-the-art Google architecture that allows us to feed in "Known Future Inputs". We can tell the model mathematically "Tomorrow is June 15th". The Transformer's attention mechanism sees the date and knows historically that June triggers the monsoon, allowing it to predict a massive spike in rain even if yesterday was dry.
+
+REAL-WORLD EXAMPLE:
+On June 1st, instead of giving a flat prediction of "50mm of rain", the TFT outputs a probabilistic quantile spread:
+- P10 (Best Case): 10mm
+- P50 (Most Likely): 60mm
+- P90 (Worst Case): 200mm
+This is crucial for disaster management, as the government needs to prepare for the P90 "Worst Case" scenario.
+
+PROCESSING PIPELINE (Step-by-Step):
+1. Input Layer: Ingests past history (last 30 days of rain) PLUS Future Covariates (Sine/Cosine mathematical encodings of the Day-of-the-Year and Month).
+2. Variable Selection Network: The TFT automatically assigns "weights" to variables. It might decide that "Month" is 90% important right now, but "Humidity" is only 10% important.
+3. LSTM Encoders: Processes the sequential time-series data to understand short-term trends (e.g., it rained heavily yesterday, so the soil is saturated).
+4. Multi-Head Attention Mechanism (The Transformer): Looks back across the entire history to identify long-term seasonal patterns (the 365-day monsoon cycle).
+5. Quantile Output Layer: Outputs three separate predictions (10th, 50th, and 90th percentiles) for the future timeframe.
+
+
+--------------------------------------------------------------------
+3. Why TabTransformer is NOT Feasible for RAINWISE
+--------------------------------------------------------------------
+TabTransformer is an amazing architecture, but using it for RAINWISE would be a technical mistake for two main reasons:
+
+1. Lack of Categorical Data:
+TabTransformer was explicitly designed to excel on datasets with massive amounts of "Categorical" variables (e.g., text categories like "Job Title", "City Name", "Browser Type"). It uses Self-Attention to map relationships between these words. 
+RAINWISE data is almost entirely "Continuous Numerical" (exact decimal coordinates, precise rainfall mm, exact distances). TabTransformer offers virtually zero advantage over a standard DNN for continuous numbers, but uses significantly more computational power.
+
+2. No Sequential Memory (Time-Series Blindness):
+TabTransformer is designed for static rows (like predicting if a specific customer will click an ad). It has absolutely no mechanism to understand the flow of time. It cannot do sequence-to-sequence forecasting. If we used it for rainfall prediction, it would treat every day as a random, isolated event rather than a continuous chronological sequence, making seasonal forecasting impossible. For time-series, a temporal architecture (like the TFT or an LSTM) is strictly required.

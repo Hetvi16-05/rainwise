@@ -1,0 +1,4 @@
+Model,Accuracy
+Random Forest,0.982
+Decision Tree,0.9766
+Naive Bayes,0.9832
