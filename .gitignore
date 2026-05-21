@@ -1,13 +1,43 @@
 # ======================
-# DATA (very important)
+# PYTHON
 # ======================
-data/
-bigdata/
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
 
 # ======================
-# LARGE FILES
+# ENVIRONMENT
 # ======================
-*.csv
+.env
+.venv/
+venv/
+env/
+
+# ======================
+# DATA (large files)
+# ======================
+data/raw/
+data/interim/
+data/processed/*.csv
+data/processed/staging_*.csv
+data/external/
+bigdata/
+cache/
+
+# Keep config CSVs
+!data/config/
+!data/config/*.csv
+!data/processed/gujarat_river_distance.csv
+!data/processed/gujarat_elevation.csv
+
+# ======================
+# LARGE FILE FORMATS
+# ======================
 *.parquet
 *.zip
 *.tif
@@ -15,36 +45,52 @@ bigdata/
 *.nc
 *.gz
 *.h5
+*.npy
+*.npz
 
 # ======================
-
-# CACHE / TEMP
-# ======================
-cache/
-__pycache__/
-*.pyc
-
-# ======================
-# LOGS / TEMP FILES
+# LOGS
 # ======================
 *.log
-*.txt
-wget-log*
+pipeline_last_run.txt
+src/pipeline.lock
+hadoop_autostart.log
+wget-log
+wget-log.*
+allfiles.txt
 
 # ======================
 # PLOTS / OUTPUTS
 # ======================
 plots/
+outputs/*.png
+outputs/*.jpg
+visualizations/
 
 # ======================
-# ENV FILES
-# ======================
-.env
-.venv
-
-# ======================
-# MAC FILES
+# MAC
 # ======================
 .DS_Store
+.AppleDouble
+.LSOverride
 .tmp.driveupload/
-src/pipeline.lock
+.tmp.drivedownload/
+
+# ======================
+# NOTEBOOKS & TEMP
+# ======================
+.ipynb_checkpoints/
+*.ipynb
+
+# ======================
+# MODELS (large binaries — optional: comment out if you want to track)
+# ======================
+# models/*.pkl
+# DLmodels/*.pth
+
+# ======================
+# MISC
+# ======================
+*.tmp
+missing_dates.txt
+pipeline_error.log
