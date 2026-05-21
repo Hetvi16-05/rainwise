@@ -51,6 +51,7 @@ cache/
 # ======================
 # LOGS
 # ======================
+logs/
 *.log
 pipeline_last_run.txt
 src/pipeline.lock
